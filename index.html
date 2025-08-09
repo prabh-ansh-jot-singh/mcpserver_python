@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backdoorz - Data Collection Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .error-border { border-color: #ef4444; }
+        .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col items-center min-h-screen p-4">
+    <div class="w-full max-w-6xl space-y-6">
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">Data Collection Dashboard</h1>
+            <p class="text-lg text-gray-500 mt-2 font-medium">A Hackathon Project by <span class="text-blue-600 font-bold">Backdoorz</span></p>
+            <p class="text-sm text-gray-400 mt-1">Using MCP Protocol v2.0</p>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200">
+            <button id="formTab" class="px-4 py-2 font-medium tab-active">Data Form</button>
+            <button id="mcpTab" class="px-4 py-2 font-medium text-gray-500">MCP Client</button>
+        </div>
+
+        <!-- Form Section -->
+        <div id="formSection" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Submit New Data</h2>
+            <form id="dataForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-semibold text-gray-700">Full Name*</label>
+                        <input type="text" id="name" name="Name" placeholder="e.g., Jane Doe" 
+                               class="mt-2 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <p id="nameError" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+                    
+                    <div>
+                        <label for="city" class="block text-sm font-semibold text-gray-700">City*</label>
+                        <input type="text" id="city" name="City" placeholder="e.g., London" 
+                               class="mt-2 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <p id="cityError" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+                    
+                    <div>
+                        <label for="age" class="block text-sm font-semibold text-gray-700">Age*</label>
+                        <input type="number" id="age" name="Age" placeholder="e.g., 25" min="1" max="120"
+                               class="mt-2 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <p id="ageError" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-gray-700">Email*</label>
+                        <input type="email" id="email" name="Email" placeholder="e.g., example@domain.com" 
+                               class="mt-2 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <p id="emailError" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-sm font-semibold text-gray-700">Phone Number*</label>
+                        <input type="tel" id="phone" name="Phone" placeholder="e.g., 1234567890" 
+                               class="mt-2 block w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <p id="phoneError" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    Submit Data
+                </button>
+            </form>
+
+            <div id="statusMessage" class="mt-6 p-4 rounded-lg text-sm text-center hidden"></div>
+        </div>
+
+        <!-- MCP Client Section (hidden by default) -->
+        <div id="mcpSection" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hidden">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">MCP Protocol Client</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-lg">Available Methods</h3>
+                    <button id="getDataBtn" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                        get_data
+                    </button>
+                    <button id="getRowCountBtn" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                        get_row_count
+                    </button>
+                    <button id="addRowBtn" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                        add_row
+                    </button>
+                    <button id="searchRecordsBtn" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                        search_records
+                    </button>
+                </div>
+                
+                <div class="md:col-span-2 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Request</label>
+                        <textarea id="mcpRequest" class="w-full h-40 p-3 bg-gray-100 border border-gray-300 rounded-lg font-mono text-sm" spellcheck="false">
+{
+    "jsonrpc": "2.0",
+    "method": "get_data",
+    "params": {},
+    "id": 1
+}</textarea>
+                    </div>
+                    
+                    <button id="sendRequestBtn" class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+                        Send MCP Request
+                    </button>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Response</label>
+                        <pre id="mcpResponse" class="w-full h-40 p-3 bg-gray-100 border border-gray-300 rounded-lg overflow-auto text-sm">{
+    "Waiting for response..."
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-900">Submitted Data</h2>
+                <button id="refreshDataBtn" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                    Refresh Data
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Data rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="loadingMessage" class="text-center text-gray-500 mt-4">Loading data...</p>
+            <p id="errorMessage" class="text-center text-red-500 mt-4 hidden"></p>
+            <div id="rowCount" class="text-right text-sm text-gray-500 mt-2"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const form = document.getElementById('dataForm');
+        const statusMessage = document.getElementById('statusMessage');
+        const dataTableBody = document.getElementById('dataTableBody');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const refreshDataBtn = document.getElementById('refreshDataBtn');
+        const rowCount = document.getElementById('rowCount');
+        
+        // MCP Client Elements
+        const formTab = document.getElementById('formTab');
+        const mcpTab = document.getElementById('mcpTab');
+        const formSection = document.getElementById('formSection');
+        const mcpSection = document.getElementById('mcpSection');
+        const mcpRequest = document.getElementById('mcpRequest');
+        const mcpResponse = document.getElementById('mcpResponse');
+        const sendRequestBtn = document.getElementById('sendRequestBtn');
+        const getDataBtn = document.getElementById('getDataBtn');
+        const getRowCountBtn = document.getElementById('getRowCountBtn');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const searchRecordsBtn = document.getElementById('searchRecordsBtn');
+
+        // Tab Switching
+        formTab.addEventListener('click', () => {
+            formTab.classList.add('tab-active');
+            formTab.classList.remove('text-gray-500');
+            mcpTab.classList.remove('tab-active');
+            mcpTab.classList.add('text-gray-500');
+            formSection.classList.remove('hidden');
+            mcpSection.classList.add('hidden');
+        });
+
+        mcpTab.addEventListener('click', () => {
+            mcpTab.classList.add('tab-active');
+            mcpTab.classList.remove('text-gray-500');
+            formTab.classList.remove('tab-active');
+            formTab.classList.add('text-gray-500');
+            mcpSection.classList.remove('hidden');
+            formSection.classList.add('hidden');
+        });
+
+        // MCP Method Templates
+        getDataBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "get_data",
+    "params": {},
+    "id": ${Date.now()}
+}`;
+        });
+
+        getRowCountBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "get_row_count",
+    "params": {},
+    "id": ${Date.now()}
+}`;
+        });
+
+        addRowBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "add_row",
+    "params": {
+        "Name": "John Doe",
+        "City": "New York",
+        "Age": 30,
+        "Email": "john@example.com",
+        "Phone": "1234567890"
+    },
+    "id": ${Date.now()}
+}`;
+        });
+
+        searchRecordsBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "search_records",
+    "params": {
+        "City": "New York"
+    },
+    "id": ${Date.now()}
+}`;
+        });
+
+        // Send MCP Request
+        sendRequestBtn.addEventListener('click', async () => {
+            try {
+                mcpResponse.textContent = "Sending request...";
+                const request = JSON.parse(mcpRequest.value);
+                
+                const response = await fetch('http://localhost:5000/mcp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: mcpRequest.value
+                });
+                
+                const data = await response.json();
+                mcpResponse.textContent = JSON.stringify(data, null, 2);
+                
+                // If this was a get_data request, update the table
+                if (request.method === 'get_data' && data.result) {
+                    updateDataTable(data.result);
+                }
+            } catch (error) {
+                mcpResponse.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        // Helper functions
+        const getStandardField = (record, possibleKeys) => {
+            for (const key of possibleKeys) {
+                if (record[key] !== undefined && record[key] !== null) {
+                    return record[key];
+                }
+            }
+            return '';
+        };
+
+        const updateDataTable = (data) => {
+            dataTableBody.innerHTML = '';
+            
+            if (!Array.isArray(data)) {
+                errorMessage.textContent = 'Invalid data format received from server';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            if (data.length === 0) {
+                loadingMessage.textContent = 'No data available. Submit some data!';
+                loadingMessage.classList.remove('hidden');
+                return;
+            }
+            
+            data.forEach(record => {
+                const row = document.createElement('tr');
+                
+                const name = getStandardField(record, ['Name', 'name', 'NAME']);
+                const city = getStandardField(record, ['City', 'city', 'CITY']);
+                const age = getStandardField(record, ['Age', 'age', 'AGE']);
+                const email = getStandardField(record, ['Email', 'email', 'EMAIL']);
+                const phone = getStandardField(record, ['Phone', 'phone', 'PHONE']);
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${city}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${age}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${phone}</td>
+                `;
+                dataTableBody.appendChild(row);
+            });
+            
+            rowCount.textContent = `Total rows: ${data.length}`;
+            loadingMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        };
+
+        const fetchAndDisplayData = async () => {
+            loadingMessage.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            dataTableBody.innerHTML = '';
+
+            try {
+                const response = await fetch('http://localhost:5000/get_data');
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+                const data = await response.json();
+                updateDataTable(data);
+            } catch (error) {
+                loadingMessage.classList.add('hidden');
+                errorMessage.textContent = `Error loading data: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+                console.error('Error:', error);
+            }
+        };
+
+        const clearErrors = () => {
+            document.querySelectorAll('[id$="Error"]').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+            document.querySelectorAll('.error-border').forEach(el => {
+                el.classList.remove('error-border');
+            });
+        };
+
+        const showError = (fieldId, message) => {
+            const input = document.getElementById(fieldId);
+            const errorElement = document.getElementById(`${fieldId}Error`);
+            
+            input.classList.add('error-border');
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+        };
+
+        // Form Submission
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearErrors();
+            statusMessage.textContent = '';
+            statusMessage.className = 'mt-6 p-4 rounded-lg text-sm text-center hidden';
+            errorMessage.classList.add('hidden');
+
+            const formData = {
+                Name: document.getElementById('name').value.trim(),
+                City: document.getElementById('city').value.trim(),
+                Age: document.getElementById('age').value.trim(),
+                Email: document.getElementById('email').value.trim(),
+                Phone: document.getElementById('phone').value.trim()
+            };
+
+            statusMessage.textContent = 'Submitting data...';
+            statusMessage.classList.remove('hidden');
+            statusMessage.classList.add('bg-blue-100', 'text-blue-800');
+
+            try {
+                const response = await fetch('http://localhost:5000/add_row', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+                
+                const result = await response.json();
+
+                if (!response.ok) {
+                    if (result.errors) {
+                        result.errors.forEach(error => {
+                            if (error.includes("Name")) showError('name', error);
+                            else if (error.includes("City")) showError('city', error);
+                            else if (error.includes("Age")) showError('age', error);
+                            else if (error.includes("Email")) showError('email', error);
+                            else if (error.includes("Phone")) showError('phone', error);
+                        });
+                        throw new Error("Please fix the validation errors");
+                    }
+                    throw new Error(result.message || 'Failed to submit data');
+                }
+
+                statusMessage.textContent = `Success: ${result.message}`;
+                statusMessage.classList.remove('bg-blue-100', 'text-blue-800');
+                statusMessage.classList.add('bg-green-100', 'text-green-800');
+                form.reset();
+                
+                await fetchAndDisplayData();
+            } catch (error) {
+                statusMessage.textContent = `Error: ${error.message}`;
+                statusMessage.classList.remove('bg-blue-100', 'text-blue-800');
+                statusMessage.classList.add('bg-red-100', 'text-red-800');
+                console.error('Submission error:', error);
+            }
+        });
+
+        // Refresh Data Button
+        refreshDataBtn.addEventListener('click', fetchAndDisplayData);
+
+        // Initial data load
+        window.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+    </script>
+</body>
+</html>
