@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backdoorz - Data Collection Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'DM Sans', sans-serif; }
         .error-border { border-color: #ef4444; }
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
     </style>
@@ -323,7 +323,7 @@
             dataTableBody.innerHTML = '';
 
             try {
-                const response = await fetch(`${BASE_URL}/get_data`);
+                const response = await fetch(`${BASE_URL}/api/data`);
                 if (!response.ok) {
                     throw new Error(`Server returned ${response.status}`);
                 }
@@ -377,7 +377,7 @@
             statusMessage.classList.add('bg-blue-100', 'text-blue-800');
 
             try {
-                const response = await fetch(`${BASE_URL}/add_row`, {
+                const response = await fetch(`${BASE_URL}/api/add_row`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData),
@@ -399,7 +399,7 @@
                     throw new Error(result.message || 'Failed to submit data');
                 }
 
-                statusMessage.textContent = `Success: ${result.message}`;
+                statusMessage.textContent = `Success: Data submitted successfully!`;
                 statusMessage.classList.remove('bg-blue-100', 'text-blue-800');
                 statusMessage.classList.add('bg-green-100', 'text-green-800');
                 form.reset();
