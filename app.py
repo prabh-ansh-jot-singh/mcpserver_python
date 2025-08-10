@@ -1,8 +1,10 @@
+import os
 from flask import Flask, jsonify, request
 import gspread
 from google.oauth2.service_account import Credentials
 from flask_cors import CORS
 import re
+import json
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -28,16 +30,24 @@ MCP_ERRORS = {
 
 # Initialize Google Sheets
 try:
-    credentials = Credentials.from_service_account_file(
-        'credentials.json',
-        scopes=SCOPES
-    )
+    creds_info = json.loads(os.environ.get('GCP_CREDENTIALS'))
+    credentials = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
     gc = gspread.authorize(credentials)
     sh = gc.open("My First Sheet")
     sheet = sh.sheet1
 except Exception as e:
     print(f"Initialization error: {e}")
     sheet = None
+
+# Health check endpoint
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "ok"}), 200
+
+@app.before_request
+def check_sheet_connection():
+    if not sheet and request.path != '/health':
+        return jsonify({"status": "error", "message": "Google Sheets connection failed"}), 500
 
 # Helper functions
 def validate_data(data):
@@ -270,11 +280,9 @@ def handle_mcp_search_records(mcp_request):
             "id": mcp_request.get('id')
         }), 500
 
-# REST Endpoints (optional)
+# REST Endpoints
 @app.route("/get_data", methods=['GET'])
 def get_data():
-    if not sheet:
-        return jsonify({"status": "error", "message": "Failed to load sheet."}), 500
     try:
         all_records = sheet.get_all_records()
         transformed_records = [transform_record(record) for record in all_records]
@@ -284,8 +292,6 @@ def get_data():
 
 @app.route("/add_row", methods=['POST'])
 def add_row():
-    if not sheet:
-        return jsonify({"status": "error", "message": "Failed to load sheet."}), 500
     try:
         data = request.get_json()
         validation_errors = validate_data(data)
@@ -311,8 +317,6 @@ def add_row():
 
 @app.route("/")
 def home():
-    if not sheet:
-        return jsonify({"status": "error", "message": "Failed to load sheet."}), 500
     try:
         all_records = sheet.get_all_records()
         transformed_records = [transform_record(record) for record in all_records]
@@ -321,4 +325,5 @@ def home():
         return jsonify({"status": "error", "message": f"Error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
