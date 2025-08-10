@@ -2,8 +2,14 @@ services:
   - type: web
     name: mcp-server
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    pythonVersion: "3.9.13"
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: gunicorn --worker-tmp-dir /dev/shm --workers 2 --threads 4 --timeout 60 app:app
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.13
+      - key: GCP_CREDENTIALS
+        value: your_service_account_json_here
+    healthCheckPath: /health
+    autoDeploy: true
+    plan: free
