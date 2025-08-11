@@ -1,14 +1,25 @@
 services:
   - type: web
-    name: mcpserver-python
+    name: mcp-server
     runtime: python
-    pythonVersion: "3.9.13"
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-    startCommand: gunicorn --worker-tmp-dir /dev/shm --workers 2 --threads 4 --timeout 120 app:app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
-      - key: GCP_CREDENTIALS
-        value: {"type":"service_account","project_id":"hackathongsheet","private_key_id":"779e5d...","private_key":"-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----\\n","client_email":"sheetsaccess@hackathongsheet.iam.gserviceaccount.com","client_id":"109567...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/sheetsaccess%40hackathongsheet.iam.gserviceaccount.com","universe_domain":"googleapis.com"}
-    healthCheckPath: /health
-    plan: free
+      - key: PYTHON_VERSION
+        value: 3.9.13
+      - key: GOOGLE_SHEETS_CREDENTIALS_JSON
+        value: {
+  "type": "service_account",
+  "project_id": "hackathongsheet",
+  "private_key_id": "caad1bc0ed221f06c3f10d64549bf7d5766b1d63",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDDuXCevpVfIaST\nHBoYiOhBpsJDAniwrROmIk3ZT+w8CjZ/PmJNJg5GVW6pIza+3+rP6Y6GQrGoDQWd\nlUnzG3qQgOkQTx48QSMoEQOA7opiRNHTCF58VjWgxXCPM9GSCzbOWafi5uKZ4f4G\nAi6zEmnSwUFBZV6/4Z/Di0uzwOLl4XSHoNyBeOJxWuDiDGYxq3mfTHkXLYAkLg+W\nQUT42VsP/mfu4+1uniXBVDYNkG4CdDW8KC7Sp3BPTzbqfuh+b1QT79YET8g7t9sY\n1w3mDW7/hC9M838PCZMsPeKqM7lDSXAPs6TgUD1gAvCG2zXUkFQFRiFT2RBDAYzC\nRG5957KFAgMBAAECggEAHyzOpC5hnvM+IkN34aAO9IQSDbfbTvLmfhAZO8u36lFL\nIGXopPayj9/kPjMScYE7hs3iCn8dipG2awUAMCWYlmM+HD+p5nmOlr9tAjCcoK3r\nCPTcjevyY08HkHu1vhAktOYBcIoLnmypeD4JP7MnYW8wTHEP0DrpJm2ty24mBezl\nm1FFQUh+dogBEQTEi/wgzOZjQHr9wTDNwA8vrPAAyf6OKirFPtFTxQ1gUd3Mu3cK\nZ5/8r84Ng/jk34WiUeVaB/+1/OKlqjkNPDmcQcILfqACxvElUOt2wg8h9iqKJ4mt\nHoOooUXb4aJ/Als0F7GBByKk/Cuiomp2DnZFp/1gOQKBgQDvAdHo9CaShWxsAKz5\nYDWphcnMn8w5+uNgJJ1Kp7TBvUP+sztlmt9R5Vwbcn5X0ZfvNLAiYYSapTV/CZ0C\nN6m+GiuhhkOYZVgvwxen5I84JeR/Nl+w26bXJmA2pYbBX7y3zMiD24K7eGBUCVBO\ntp1pQchyD9DsyRGkyy23ii+v+QKBgQDRo9QsV5oJ9DitE5ocAvOVWgjdh6O6dkJH\n+wBGNzqdrR1/FajzGvFmau2kNcu7I5SD68TGzhOBYYYcr7rhKyjipcJ209RLoFRp\n7cN1JxMmBC3Oj3hpdesoPArIidpvIPr4QIuLCaimc668IUcuVlVWtwQqS4PJi6dE\nRPHELrRR7QKBgQCs3PwdKLjdMHMCilqQ4uzs9z7FKK5lIPhjCRhaboFlvqX3CVrk\nWec7LFA56c1HZugksk7SDwYBc4wFncZZXDkArZzw7lLlXicyJEBvxfdv/LgO6hy7\npaI96hucaovUQJIVvZ8o/xLG1IGXRkU3KQ0gm9uF47qQB70jG3CtVty2wQKBgDuc\n5pylXHwwIl21EUGd5T43GAZGp9xB/J8TVQSid9yWeajFtAFNTA/foCvt0D0q5PSO\neqo9t3Y3ETffELku2LV6hU3c9qV6tgZZQhdyQROyZIQ0b/0tNu1+BWL5MFAhhLxL\nPmMPIBIVGz8MB325txKtgFW2m4cYWzwijs1GqqgRAoGBAJXl1HSzbtRqxLxAm6C7\n1MBsuBencYKPt/1pikOtlYEt7q7Pp/E4wSsJcNTnZY79lMndCaS2ZJunuHk40OrT\nBdncI73Qu8vFmjoBOIDfQsiUkjJ81oW5NFTdbdo6xRJVCMyc3y/hVttg3/6YcEAF\n+wnuQNBB50o6QfloPSebie7K\n-----END PRIVATE KEY-----\n",
+  "client_email": "sheetsaccess@hackathongsheet.iam.gserviceaccount.com",
+  "client_id": "109567818574315006395",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sheetsaccess%40hackathongsheet.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+      - key: GOOGLE_SHEET_URL
+        value: https://docs.google.com/spreadsheets/d/186pG2bEE_ORj3F1eTRfWD6ldhM2-tM8KdvYeHCxJbMA/edit?gid=0#gid=0
