@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backdoorz - Data Collection Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'DM Sans', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
         .error-border { border-color: #ef4444; }
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; }
     </style>
@@ -16,20 +16,46 @@
     <div class="w-full max-w-6xl space-y-6">
         <!-- Header -->
         <header class="text-center mb-6">
-            <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">Data Collection Dashboard</h1>
-            <p class="text-lg text-gray-500 mt-2 font-medium">A Hackathon Project by <span class="text-blue-600 font-bold">Backdoorz</span></p>
-            <p class="text-sm text-gray-400 mt-1">Using MCP Protocol v2.0</p>
+            <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">🚀 Intelligent Data Hub</h1>
+            <p class="text-lg text-gray-500 mt-2 font-medium">Puch AI Hackathon Project by <span class="text-blue-600 font-bold">Team Backdoorz</span></p>
+            <p class="text-sm text-gray-400 mt-1">#BuildWithPuch • MCP Protocol v2.0 • AI-Powered Analytics</p>
+            <div id="modeIndicator" class="mt-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium inline-block hidden">
+                🔄 Demo Mode - Data stored in memory only
+            </div>
+            <div class="mt-3 flex justify-center space-x-4 text-sm">
+                <div class="flex items-center space-x-1">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-gray-600">Google Sheets Connected</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span class="text-gray-600" id="recordCount">Loading records...</span>
+                </div>
+            </div>
         </header>
 
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200">
-            <button id="formTab" class="px-4 py-2 font-medium tab-active">Data Form</button>
-            <button id="mcpTab" class="px-4 py-2 font-medium text-gray-500">MCP Client</button>
+        <div class="flex border-b border-gray-200 bg-white rounded-t-lg">
+            <button id="formTab" class="px-6 py-3 font-medium tab-active flex items-center space-x-2">
+                <span>📝</span><span>Smart Data Entry</span>
+            </button>
+            <button id="analyticsTab" class="px-6 py-3 font-medium text-gray-500 flex items-center space-x-2">
+                <span>📊</span><span>AI Analytics</span>
+            </button>
+            <button id="mcpTab" class="px-6 py-3 font-medium text-gray-500 flex items-center space-x-2">
+                <span>🔧</span><span>MCP Protocol</span>
+            </button>
         </div>
 
         <!-- Form Section -->
         <div id="formSection" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Submit New Data</h2>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">AI-Enhanced Data Entry</h2>
+                <div class="flex items-center space-x-2 text-sm text-green-600">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Smart Validation Active</span>
+                </div>
+            </div>
             <form id="dataForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -76,6 +102,101 @@
             <div id="statusMessage" class="mt-6 p-4 rounded-lg text-sm text-center hidden"></div>
         </div>
 
+        <!-- Analytics Section (hidden by default) -->
+        <div id="analyticsSection" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">AI-Powered Analytics</h2>
+                <button id="generateInsightsBtn" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-200">
+                    ✨ Generate AI Insights
+                </button>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-600 text-sm font-medium">Total Records</p>
+                            <p id="totalRecords" class="text-3xl font-bold text-blue-900">-</p>
+                        </div>
+                        <div class="text-blue-500 text-2xl">📊</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-600 text-sm font-medium">Unique Cities</p>
+                            <p id="uniqueCities" class="text-3xl font-bold text-green-900">-</p>
+                        </div>
+                        <div class="text-green-500 text-2xl">🌍</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-600 text-sm font-medium">Average Age</p>
+                            <p id="averageAge" class="text-3xl font-bold text-yellow-900">-</p>
+                        </div>
+                        <div class="text-yellow-500 text-2xl">🎂</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-600 text-sm font-medium">Data Quality</p>
+                            <p id="dataQuality" class="text-3xl font-bold text-purple-900">-</p>
+                        </div>
+                        <div class="text-purple-500 text-2xl">⭐</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts and Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- City Distribution -->
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">City Distribution</h3>
+                    <div id="cityChart" class="space-y-3">
+                        <!-- City bars will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Age Demographics -->
+                <div class="bg-gray-50 p-6 rounded-xl">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Age Demographics</h3>
+                    <div id="ageChart" class="space-y-3">
+                        <!-- Age distribution will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Insights Panel -->
+            <div class="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                    <span>🤖</span><span>AI-Generated Insights</span>
+                </h3>
+                <div id="aiInsights" class="space-y-3 text-gray-700">
+                    <p>Click "Generate AI Insights" to get intelligent analysis of your data patterns, trends, and recommendations.</p>
+                </div>
+            </div>
+            
+            <!-- Export Options -->
+            <div class="mt-8 flex space-x-4">
+                <button id="exportCsvBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    📄 Export CSV
+                </button>
+                <button id="exportJsonBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    📝 Export JSON
+                </button>
+                <button id="generateReportBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    📊 Generate Report
+                </button>
+            </div>
+        </div>
+
         <!-- MCP Client Section (hidden by default) -->
         <div id="mcpSection" class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">MCP Protocol Client</h2>
@@ -94,6 +215,15 @@
                     </button>
                     <button id="searchRecordsBtn" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg">
                         search_records
+                    </button>
+                    <button id="getAnalyticsBtn" class="w-full text-left p-3 bg-purple-100 hover:bg-purple-200 rounded-lg text-purple-800 font-medium">
+                        ✨ get_analytics
+                    </button>
+                    <button id="getDataQualityBtn" class="w-full text-left p-3 bg-green-100 hover:bg-green-200 rounded-lg text-green-800 font-medium">
+                        ⭐ get_data_quality
+                    </button>
+                    <button id="exportDataBtn" class="w-full text-left p-3 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-800 font-medium">
+                        📄 export_data
                     </button>
                 </div>
                 
@@ -125,11 +255,15 @@
 
         <!-- Data Table Section -->
         <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-900">Submitted Data</h2>
-                <button id="refreshDataBtn" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">
-                    Refresh Data
-                </button>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Smart Data Explorer</h2>
+                <div class="flex space-x-3">
+                    <input type="text" id="searchInput" placeholder="🔍 Search records..." 
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="refreshDataBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        🔄 Refresh
+                    </button>
+                </div>
             </div>
             
             <div class="overflow-x-auto">
@@ -155,9 +289,6 @@
     </div>
 
     <script>
-        // Get the base URL from the current window location
-        const BASE_URL = window.location.origin;
-
         // DOM Elements
         const form = document.getElementById('dataForm');
         const statusMessage = document.getElementById('statusMessage');
@@ -169,9 +300,12 @@
         
         // MCP Client Elements
         const formTab = document.getElementById('formTab');
+        const analyticsTab = document.getElementById('analyticsTab');
         const mcpTab = document.getElementById('mcpTab');
         const formSection = document.getElementById('formSection');
+        const analyticsSection = document.getElementById('analyticsSection');
         const mcpSection = document.getElementById('mcpSection');
+        const searchInput = document.getElementById('searchInput');
         const mcpRequest = document.getElementById('mcpRequest');
         const mcpResponse = document.getElementById('mcpResponse');
         const sendRequestBtn = document.getElementById('sendRequestBtn');
@@ -179,25 +313,40 @@
         const getRowCountBtn = document.getElementById('getRowCountBtn');
         const addRowBtn = document.getElementById('addRowBtn');
         const searchRecordsBtn = document.getElementById('searchRecordsBtn');
+        const getAnalyticsBtn = document.getElementById('getAnalyticsBtn');
+        const getDataQualityBtn = document.getElementById('getDataQualityBtn');
+        const exportDataBtn = document.getElementById('exportDataBtn');
 
         // Tab Switching
-        formTab.addEventListener('click', () => {
-            formTab.classList.add('tab-active');
-            formTab.classList.remove('text-gray-500');
-            mcpTab.classList.remove('tab-active');
-            mcpTab.classList.add('text-gray-500');
-            formSection.classList.remove('hidden');
-            mcpSection.classList.add('hidden');
-        });
+        function switchTab(activeTab) {
+            // Remove active state from all tabs
+            [formTab, analyticsTab, mcpTab].forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('text-gray-500');
+            });
+            
+            // Hide all sections
+            [formSection, analyticsSection, mcpSection].forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Activate selected tab and section
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('text-gray-500');
+            
+            if (activeTab === formTab) {
+                formSection.classList.remove('hidden');
+            } else if (activeTab === analyticsTab) {
+                analyticsSection.classList.remove('hidden');
+                updateAnalytics();
+            } else if (activeTab === mcpTab) {
+                mcpSection.classList.remove('hidden');
+            }
+        }
 
-        mcpTab.addEventListener('click', () => {
-            mcpTab.classList.add('tab-active');
-            mcpTab.classList.remove('text-gray-500');
-            formTab.classList.remove('tab-active');
-            formTab.classList.add('text-gray-500');
-            mcpSection.classList.remove('hidden');
-            formSection.classList.add('hidden');
-        });
+        formTab.addEventListener('click', () => switchTab(formTab));
+        analyticsTab.addEventListener('click', () => switchTab(analyticsTab));
+        mcpTab.addEventListener('click', () => switchTab(mcpTab));
 
         // MCP Method Templates
         getDataBtn.addEventListener('click', () => {
@@ -244,180 +393,457 @@
 }`;
         });
 
+        getAnalyticsBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "get_analytics",
+    "params": {},
+    "id": ${Date.now()}
+}`;
+        });
+
+        getDataQualityBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "get_data_quality",
+    "params": {},
+    "id": ${Date.now()}
+}`;
+        });
+
+        exportDataBtn.addEventListener('click', () => {
+            mcpRequest.value = `{
+    "jsonrpc": "2.0",
+    "method": "export_data",
+    "params": {
+        "format": "csv"
+    },
+    "id": ${Date.now()}
+}`;
+        });
+
         // Send MCP Request
         sendRequestBtn.addEventListener('click', async () => {
             try {
-                mcpResponse.textContent = "Sending request...";
-                const request = JSON.parse(mcpRequest.value);
-                
-                const response = await fetch(`${BASE_URL}/mcp`, {
+                const requestBody = JSON.parse(mcpRequest.value);
+                const response = await fetch('/mcp', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: mcpRequest.value
-                });
-                
-                const data = await response.json();
-                mcpResponse.textContent = JSON.stringify(data, null, 2);
-                
-                // If this was a get_data request, update the table
-                if (request.method === 'get_data' && data.result) {
-                    updateDataTable(data.result);
-                }
-            } catch (error) {
-                mcpResponse.textContent = `Error: ${error.message}`;
-            }
-        });
-
-        // Helper functions
-        const getStandardField = (record, possibleKeys) => {
-            for (const key of possibleKeys) {
-                if (record[key] !== undefined && record[key] !== null) {
-                    return record[key];
-                }
-            }
-            return '';
-        };
-
-        const updateDataTable = (data) => {
-            dataTableBody.innerHTML = '';
-            
-            if (!Array.isArray(data)) {
-                errorMessage.textContent = 'Invalid data format received from server';
-                errorMessage.classList.remove('hidden');
-                return;
-            }
-
-            if (data.length === 0) {
-                loadingMessage.textContent = 'No data available. Submit some data!';
-                loadingMessage.classList.remove('hidden');
-                return;
-            }
-            
-            data.forEach(record => {
-                const row = document.createElement('tr');
-                
-                const name = getStandardField(record, ['Name', 'name', 'NAME']);
-                const city = getStandardField(record, ['City', 'city', 'CITY']);
-                const age = getStandardField(record, ['Age', 'age', 'AGE']);
-                const email = getStandardField(record, ['Email', 'email', 'EMAIL']);
-                const phone = getStandardField(record, ['Phone', 'phone', 'PHONE']);
-                
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${city}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${age}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${email}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${phone}</td>
-                `;
-                dataTableBody.appendChild(row);
-            });
-            
-            rowCount.textContent = `Total rows: ${data.length}`;
-            loadingMessage.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-        };
-
-        const fetchAndDisplayData = async () => {
-            loadingMessage.classList.remove('hidden');
-            errorMessage.classList.add('hidden');
-            dataTableBody.innerHTML = '';
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/data`);
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}`);
-                }
-                const data = await response.json();
-                updateDataTable(data);
-            } catch (error) {
-                loadingMessage.classList.add('hidden');
-                errorMessage.textContent = `Error loading data: ${error.message}`;
-                errorMessage.classList.remove('hidden');
-                console.error('Error:', error);
-            }
-        };
-
-        const clearErrors = () => {
-            document.querySelectorAll('[id$="Error"]').forEach(el => {
-                el.classList.add('hidden');
-                el.textContent = '';
-            });
-            document.querySelectorAll('.error-border').forEach(el => {
-                el.classList.remove('error-border');
-            });
-        };
-
-        const showError = (fieldId, message) => {
-            const input = document.getElementById(fieldId);
-            const errorElement = document.getElementById(`${fieldId}Error`);
-            
-            input.classList.add('error-border');
-            errorElement.textContent = message;
-            errorElement.classList.remove('hidden');
-        };
-
-        // Form Submission
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            clearErrors();
-            statusMessage.textContent = '';
-            statusMessage.className = 'mt-6 p-4 rounded-lg text-sm text-center hidden';
-            errorMessage.classList.add('hidden');
-
-            const formData = {
-                Name: document.getElementById('name').value.trim(),
-                City: document.getElementById('city').value.trim(),
-                Age: document.getElementById('age').value.trim(),
-                Email: document.getElementById('email').value.trim(),
-                Phone: document.getElementById('phone').value.trim()
-            };
-
-            statusMessage.textContent = 'Submitting data...';
-            statusMessage.classList.remove('hidden');
-            statusMessage.classList.add('bg-blue-100', 'text-blue-800');
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/add_row`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
                 });
                 
                 const result = await response.json();
-
-                if (!response.ok) {
-                    if (result.errors) {
-                        result.errors.forEach(error => {
-                            if (error.includes("Name")) showError('name', error);
-                            else if (error.includes("City")) showError('city', error);
-                            else if (error.includes("Age")) showError('age', error);
-                            else if (error.includes("Email")) showError('email', error);
-                            else if (error.includes("Phone")) showError('phone', error);
-                        });
-                        throw new Error("Please fix the validation errors");
-                    }
-                    throw new Error(result.message || 'Failed to submit data');
-                }
-
-                statusMessage.textContent = `Success: Data submitted successfully!`;
-                statusMessage.classList.remove('bg-blue-100', 'text-blue-800');
-                statusMessage.classList.add('bg-green-100', 'text-green-800');
-                form.reset();
+                mcpResponse.textContent = JSON.stringify(result, null, 2);
                 
-                await fetchAndDisplayData();
+                // Refresh data if it was a successful add_row operation
+                if (requestBody.method === 'add_row' && result.result && result.result.status === 'success') {
+                    loadData();
+                }
+                
             } catch (error) {
-                statusMessage.textContent = `Error: ${error.message}`;
-                statusMessage.classList.remove('bg-blue-100', 'text-blue-800');
-                statusMessage.classList.add('bg-red-100', 'text-red-800');
-                console.error('Submission error:', error);
+                mcpResponse.textContent = JSON.stringify({
+                    "error": "Failed to parse request or send to server",
+                    "details": error.message
+                }, null, 2);
             }
         });
 
-        // Refresh Data Button
-        refreshDataBtn.addEventListener('click', fetchAndDisplayData);
+        // Clear all error states
+        function clearErrors() {
+            const errorElements = ['nameError', 'cityError', 'ageError', 'emailError', 'phoneError'];
+            errorElements.forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.add('hidden');
+                element.textContent = '';
+            });
+            
+            // Remove error styling from inputs
+            form.querySelectorAll('input').forEach(input => {
+                input.classList.remove('error-border');
+            });
+        }
 
-        // Initial data load
-        window.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+        // Display field errors
+        function displayErrors(errors) {
+            clearErrors();
+            
+            errors.forEach(error => {
+                if (error.includes('Name')) {
+                    document.getElementById('nameError').textContent = error;
+                    document.getElementById('nameError').classList.remove('hidden');
+                    document.getElementById('name').classList.add('error-border');
+                } else if (error.includes('City')) {
+                    document.getElementById('cityError').textContent = error;
+                    document.getElementById('cityError').classList.remove('hidden');
+                    document.getElementById('city').classList.add('error-border');
+                } else if (error.includes('Age')) {
+                    document.getElementById('ageError').textContent = error;
+                    document.getElementById('ageError').classList.remove('hidden');
+                    document.getElementById('age').classList.add('error-border');
+                } else if (error.includes('email') || error.includes('Email')) {
+                    document.getElementById('emailError').textContent = error;
+                    document.getElementById('emailError').classList.remove('hidden');
+                    document.getElementById('email').classList.add('error-border');
+                } else if (error.includes('Phone')) {
+                    document.getElementById('phoneError').textContent = error;
+                    document.getElementById('phoneError').classList.remove('hidden');
+                    document.getElementById('phone').classList.add('error-border');
+                }
+            });
+        }
+
+        // Show status message
+        function showStatus(message, isError = false) {
+            statusMessage.textContent = message;
+            statusMessage.className = `mt-6 p-4 rounded-lg text-sm text-center ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            statusMessage.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/add_row', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus('Data submitted successfully!');
+                    form.reset();
+                    loadData(); // Refresh the table
+                } else {
+                    if (result.errors) {
+                        displayErrors(result.errors);
+                        showStatus('Please fix the validation errors.', true);
+                    } else {
+                        showStatus(result.message || 'An error occurred.', true);
+                    }
+                }
+            } catch (error) {
+                showStatus('Network error. Please try again.', true);
+            }
+        });
+
+        // Load data into table
+        async function loadData() {
+            try {
+                loadingMessage.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                
+                const response = await fetch('/get_data');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    allData = data; // Store data globally for analytics
+                    dataTableBody.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        dataTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No data available. Submit some data to get started!</td></tr>';
+                    } else {
+                        data.forEach(record => {
+                            const row = document.createElement('tr');
+                            row.className = 'hover:bg-gray-50 transition-colors';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.Name || ''}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.City || ''}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.Age || ''}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 break-all">${record.Email || ''}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.Phone || ''}</td>
+                            `;
+                            dataTableBody.appendChild(row);
+                        });
+                    }
+                    
+                    rowCount.textContent = `Total records: ${data.length}`;
+                    // Update analytics if on analytics tab
+                    if (!analyticsSection.classList.contains('hidden')) {
+                        updateAnalytics();
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to load data');
+                }
+            } catch (error) {
+                errorMessage.textContent = `Error loading data: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+                dataTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Failed to load data</td></tr>';
+            } finally {
+                loadingMessage.classList.add('hidden');
+            }
+        }
+
+        // Refresh data button
+        refreshDataBtn.addEventListener('click', loadData);
+
+        // Check demo mode status
+        async function checkMode() {
+            try {
+                const response = await fetch('/mcp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        "jsonrpc": "2.0",
+                        "method": "get_row_count",
+                        "params": {},
+                        "id": 1
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.result && result.result.mode === 'demo') {
+                    document.getElementById('modeIndicator').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.log('Could not check mode status');
+            }
+        }
+
+        // Analytics Functions
+        let allData = [];
+        
+        function updateAnalytics() {
+            if (allData.length === 0) return;
+            
+            // Basic stats
+            const totalRecords = allData.length;
+            const cities = [...new Set(allData.map(r => r.City).filter(c => c))];
+            const ages = allData.map(r => parseInt(r.Age)).filter(a => !isNaN(a));
+            const averageAge = Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) || 0;
+            
+            // Data quality score (percentage of complete records)
+            const completeRecords = allData.filter(r => r.Name && r.City && r.Age && r.Email && r.Phone);
+            const qualityScore = Math.round((completeRecords.length / totalRecords) * 100);
+            
+            // Update stats
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('uniqueCities').textContent = cities.length;
+            document.getElementById('averageAge').textContent = averageAge;
+            document.getElementById('dataQuality').textContent = qualityScore + '%';
+            document.getElementById('recordCount').textContent = `${totalRecords} records`;
+            
+            // City distribution chart
+            const cityCount = {};
+            allData.forEach(r => {
+                if (r.City) {
+                    cityCount[r.City] = (cityCount[r.City] || 0) + 1;
+                }
+            });
+            
+            const cityChart = document.getElementById('cityChart');
+            cityChart.innerHTML = '';
+            Object.entries(cityCount).sort((a, b) => b[1] - a[1]).slice(0, 5).forEach(([city, count]) => {
+                const percentage = Math.round((count / totalRecords) * 100);
+                cityChart.innerHTML += `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-20 text-sm text-gray-600">${city}</div>
+                        <div class="flex-1 bg-gray-200 rounded-full h-4">
+                            <div class="bg-blue-500 h-4 rounded-full transition-all duration-500" 
+                                 style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="w-16 text-sm text-gray-800 font-medium">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            });
+            
+            // Age distribution
+            const ageGroups = {
+                '18-25': ages.filter(a => a >= 18 && a <= 25).length,
+                '26-35': ages.filter(a => a >= 26 && a <= 35).length,
+                '36-45': ages.filter(a => a >= 36 && a <= 45).length,
+                '46+': ages.filter(a => a >= 46).length
+            };
+            
+            const ageChart = document.getElementById('ageChart');
+            ageChart.innerHTML = '';
+            Object.entries(ageGroups).forEach(([range, count]) => {
+                const percentage = totalRecords > 0 ? Math.round((count / totalRecords) * 100) : 0;
+                ageChart.innerHTML += `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-16 text-sm text-gray-600">${range}</div>
+                        <div class="flex-1 bg-gray-200 rounded-full h-4">
+                            <div class="bg-green-500 h-4 rounded-full transition-all duration-500" 
+                                 style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="w-16 text-sm text-gray-800 font-medium">${count} (${percentage}%)</div>
+                    </div>
+                `;
+            });
+        }
+        
+        // AI Insights Generator
+        document.getElementById('generateInsightsBtn').addEventListener('click', () => {
+            const insights = generateAIInsights(allData);
+            document.getElementById('aiInsights').innerHTML = insights.map(insight => 
+                `<div class="flex items-start space-x-3 p-3 bg-white rounded-lg border border-indigo-100">
+                    <span class="text-lg">${insight.icon}</span>
+                    <div>
+                        <h4 class="font-semibold text-gray-900">${insight.title}</h4>
+                        <p class="text-gray-700 text-sm">${insight.description}</p>
+                    </div>
+                </div>`
+            ).join('');
+        });
+        
+        function generateAIInsights(data) {
+            if (!data || data.length === 0) return [];
+            
+            const insights = [];
+            const cities = data.map(r => r.City).filter(c => c);
+            const ages = data.map(r => parseInt(r.Age)).filter(a => !isNaN(a));
+            
+            // Most common city
+            const cityCount = {};
+            cities.forEach(city => cityCount[city] = (cityCount[city] || 0) + 1);
+            const topCity = Object.entries(cityCount).sort((a, b) => b[1] - a[1])[0];
+            if (topCity) {
+                insights.push({
+                    icon: '🏆',
+                    title: 'Top Location',
+                    description: `${topCity[0]} has the highest representation with ${topCity[1]} records (${Math.round((topCity[1]/data.length)*100)}% of total data).`
+                });
+            }
+            
+            // Age insights
+            if (ages.length > 0) {
+                const avgAge = Math.round(ages.reduce((a, b) => a + b, 0) / ages.length);
+                const medianAge = ages.sort((a, b) => a - b)[Math.floor(ages.length / 2)];
+                insights.push({
+                    icon: '📊',
+                    title: 'Age Demographics',
+                    description: `Average age is ${avgAge} years, with median age of ${medianAge}. Age range spans from ${Math.min(...ages)} to ${Math.max(...ages)} years.`
+                });
+            }
+            
+            // Data completeness
+            const completeRecords = data.filter(r => r.Name && r.City && r.Age && r.Email && r.Phone);
+            const completeness = Math.round((completeRecords.length / data.length) * 100);
+            insights.push({
+                icon: completeness >= 80 ? '✅' : '⚠️',
+                title: 'Data Quality',
+                description: `${completeness}% of records are complete. ${completeness >= 80 ? 'Excellent data quality!' : 'Consider improving data collection to reduce missing fields.'}`
+            });
+            
+            // Growth insight
+            insights.push({
+                icon: '📈',
+                title: 'Growth Opportunity',
+                description: `With ${data.length} records collected, consider implementing automated data validation and enrichment for improved insights.`
+            });
+            
+            return insights;
+        }
+        
+        // Search functionality
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const rows = dataTableBody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query) || query === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Export functions
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (allData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const csv = [
+                ['Name', 'City', 'Age', 'Email', 'Phone'],
+                ...allData.map(r => [r.Name, r.City, r.Age, r.Email, r.Phone])
+            ].map(row => row.map(field => `"${field}"`).join(',')).join('\\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `data_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        document.getElementById('exportJsonBtn').addEventListener('click', () => {
+            if (allData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const json = JSON.stringify(allData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `data_export_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        document.getElementById('generateReportBtn').addEventListener('click', () => {
+            if (allData.length === 0) {
+                alert('No data to generate report');
+                return;
+            }
+            
+            const insights = generateAIInsights(allData);
+            const report = `
+# Intelligent Data Hub Report
+Generated on ${new Date().toLocaleDateString()}
+
+## Summary Statistics
+- Total Records: ${allData.length}
+- Unique Cities: ${[...new Set(allData.map(r => r.City).filter(c => c))].length}
+- Average Age: ${Math.round(allData.map(r => parseInt(r.Age)).filter(a => !isNaN(a)).reduce((a, b) => a + b, 0) / allData.length) || 0}
+- Data Quality: ${Math.round((allData.filter(r => r.Name && r.City && r.Age && r.Email && r.Phone).length / allData.length) * 100)}%
+
+## AI Insights
+${insights.map(i => `### ${i.title}\\n${i.description}`).join('\\n\\n')}
+
+## Data Preview
+${allData.slice(0, 5).map(r => `- ${r.Name} from ${r.City}, age ${r.Age}`).join('\\n')}
+
+---
+Generated by Puch AI Hackathon Project - Team Backdoorz
+            `.trim();
+            
+            const blob = new Blob([report], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `intelligent_data_report_${new Date().toISOString().split('T')[0]}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            checkMode();
+        });
     </script>
 </body>
 </html>
