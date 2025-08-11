@@ -5,13 +5,14 @@ from flask_cors import CORS
 import re
 import os
 import logging
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Allow all origins
 
 # Configuration
 SCOPES = [
@@ -49,26 +50,31 @@ try:
     # Try to use credentials from environment variable first
     credentials_json = os.environ.get("GOOGLE_SHEETS_CREDENTIALS_JSON")
     if credentials_json:
-        import json
         credentials_info = json.loads(credentials_json)
         credentials = Credentials.from_service_account_info(
             credentials_info,
             scopes=SCOPES
         )
+        logging.info("Using credentials from environment variable")
     else:
         # Fallback to credentials.json file
         credentials = Credentials.from_service_account_file(
             'credentials.json',
             scopes=SCOPES
         )
+        logging.info("Using credentials from file")
     
     gc = gspread.authorize(credentials)
-    # Use the specific Google Sheet URL provided by the user
-    sh = gc.open_by_url("https://docs.google.com/spreadsheets/d/186pG2bEE_ORj3F1eTRfWD6ldhM2-tM8KdvYeHCxJbMA/edit?gid=0#gid=0")
+    logging.info("Google Sheets client authorized")
+    
+    # Use the specific Google Sheet URL from environment variable
+    sheet_url = os.environ.get("GOOGLE_SHEET_URL", "https://docs.google.com/spreadsheets/d/186pG2bEE_ORj3F1eTRfWD6ldhM2-tM8KdvYeHCxJbMA/edit?gid=0#gid=0")
+    sh = gc.open_by_url(sheet_url)
     sheet = sh.sheet1
-    logging.info("Google Sheets initialized successfully")
+    logging.info(f"Google Sheets initialized successfully: {sheet.title}")
+    
 except Exception as e:
-    logging.error(f"Google Sheets initialization error: {e}")
+    logging.error(f"Google Sheets initialization error: {str(e)}")
     logging.info("Running in demo mode - data will be stored in memory only")
     sheet = None
 
@@ -98,7 +104,7 @@ def validate_data(data):
             errors.append("Age must be between 1 and 120")
         elif age < 13:
             errors.append("Age appears too young for data collection compliance")
-    except ValueError:
+    except (ValueError, TypeError):
         errors.append("Age must be a valid number")
     
     # Enhanced email validation
@@ -184,7 +190,7 @@ def mcp_endpoint():
             }), 404
             
     except Exception as e:
-        logging.error(f"MCP endpoint error: {e}")
+        logging.error(f"MCP endpoint error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -227,6 +233,7 @@ def handle_mcp_add_row(mcp_request):
         
         if sheet:
             sheet.append_row(values)
+            logging.info(f"Added row to Google Sheets: {values}")
         else:
             # Demo mode - store in memory
             record = {
@@ -237,6 +244,7 @@ def handle_mcp_add_row(mcp_request):
                 'Phone': params.get('Phone', '')
             }
             demo_data.append(record)
+            logging.info(f"Added row in demo mode: {record}")
         
         return jsonify({
             "jsonrpc": "2.0",
@@ -249,7 +257,7 @@ def handle_mcp_add_row(mcp_request):
         })
         
     except Exception as e:
-        logging.error(f"Sheet append error: {e}")
+        logging.error(f"Sheet append error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -264,9 +272,11 @@ def handle_mcp_get_data(mcp_request):
         if sheet:
             all_records = sheet.get_all_records()
             transformed_records = [transform_record(record) for record in all_records]
+            logging.info(f"Fetched {len(transformed_records)} records from Google Sheets")
         else:
             # Demo mode - return in-memory data
             transformed_records = demo_data
+            logging.info("Using demo data")
         
         return jsonify({
             "jsonrpc": "2.0",
@@ -275,7 +285,7 @@ def handle_mcp_get_data(mcp_request):
         })
         
     except Exception as e:
-        logging.error(f"Sheet get_data error: {e}")
+        logging.error(f"Sheet get_data error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -302,7 +312,7 @@ def handle_mcp_get_row_count(mcp_request):
             "id": mcp_request.get('id')
         })
     except Exception as e:
-        logging.error(f"Sheet get_row_count error: {e}")
+        logging.error(f"Sheet get_row_count error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -354,7 +364,7 @@ def handle_mcp_search_records(mcp_request):
         })
         
     except Exception as e:
-        logging.error(f"Sheet search error: {e}")
+        logging.error(f"Sheet search error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -382,7 +392,7 @@ def handle_mcp_get_analytics(mcp_request):
         })
         
     except Exception as e:
-        logging.error(f"Analytics error: {e}")
+        logging.error(f"Analytics error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -410,7 +420,7 @@ def handle_mcp_get_data_quality(mcp_request):
         })
         
     except Exception as e:
-        logging.error(f"Data quality assessment error: {e}")
+        logging.error(f"Data quality assessment error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -465,7 +475,7 @@ def handle_mcp_export_data(mcp_request):
             })
         
     except Exception as e:
-        logging.error(f"Export error: {e}")
+        logging.error(f"Export error: {str(e)}")
         return jsonify({
             "jsonrpc": "2.0",
             "error": {
@@ -482,7 +492,11 @@ def generate_analytics(data):
     
     total_records = len(data)
     cities = [r.get('City') for r in data if r.get('City')]
-    ages = [int(r.get('Age')) for r in data if r.get('Age') and str(r.get('Age')).isdigit()]
+    ages = []
+    for r in data:
+        age_str = r.get('Age', '')
+        if age_str and str(age_str).isdigit():
+            ages.append(int(age_str))
     
     # City statistics
     city_counts = {}
@@ -492,9 +506,10 @@ def generate_analytics(data):
     # Age statistics
     age_stats = {}
     if ages:
+        sorted_ages = sorted(ages)
         age_stats = {
             "average": sum(ages) / len(ages),
-            "median": sorted(ages)[len(ages)//2],
+            "median": sorted_ages[len(ages)//2],
             "min": min(ages),
             "max": max(ages),
             "age_groups": {
@@ -578,7 +593,7 @@ def generate_quality_recommendations(completion_rates, overall_score):
     
     return recommendations
 
-# REST Endpoints (optional)
+# REST Endpoints
 @app.route("/get_data", methods=['GET'])
 def get_data():
     try:
@@ -591,7 +606,7 @@ def get_data():
         
         return jsonify(transformed_records), 200
     except Exception as e:
-        logging.error(f"REST get_data error: {e}")
+        logging.error(f"REST get_data error: {str(e)}")
         return jsonify({"status": "error", "message": f"Error fetching data: {str(e)}"}), 500
 
 @app.route("/add_row", methods=['POST'])
@@ -606,15 +621,17 @@ def add_row():
                 "errors": validation_errors
             }), 400
         
+        values = [
+            data.get('Name', ''),
+            data.get('City', ''),
+            data.get('Age', ''),
+            data.get('Email', ''),
+            data.get('Phone', '')
+        ]
+        
         if sheet:
-            values = [
-                data.get('Name', ''),
-                data.get('City', ''),
-                data.get('Age', ''),
-                data.get('Email', ''),
-                data.get('Phone', '')
-            ]
             sheet.append_row(values)
+            logging.info(f"Added row to Google Sheets: {values}")
         else:
             # Demo mode - store in memory
             record = {
@@ -625,13 +642,14 @@ def add_row():
                 'Phone': data.get('Phone', '')
             }
             demo_data.append(record)
+            logging.info(f"Added row in demo mode: {record}")
         
         return jsonify({
             "status": "success", 
             "message": f"Row added successfully in {'Google Sheets' if sheet else 'demo'} mode."
         }), 200
     except Exception as e:
-        logging.error(f"REST add_row error: {e}")
+        logging.error(f"REST add_row error: {str(e)}")
         return jsonify({"status": "error", "message": f"Error: {str(e)}"}), 500
 
 @app.route("/analytics", methods=['GET'])
@@ -647,7 +665,7 @@ def get_analytics():
         analytics = generate_analytics(transformed_records)
         return jsonify(analytics), 200
     except Exception as e:
-        logging.error(f"Analytics REST error: {e}")
+        logging.error(f"Analytics REST error: {str(e)}")
         return jsonify({"error": f"Analytics generation failed: {str(e)}"}), 500
 
 @app.route("/data-quality", methods=['GET'])
@@ -663,7 +681,7 @@ def get_data_quality():
         quality_assessment = assess_data_quality(transformed_records)
         return jsonify(quality_assessment), 200
     except Exception as e:
-        logging.error(f"Data quality REST error: {e}")
+        logging.error(f"Data quality REST error: {str(e)}")
         return jsonify({"error": f"Data quality assessment failed: {str(e)}"}), 500
 
 @app.route("/export/<format>", methods=['GET'])
@@ -695,7 +713,7 @@ def export_data(format):
             return jsonify(transformed_records), 200
             
     except Exception as e:
-        logging.error(f"Export REST error: {e}")
+        logging.error(f"Export REST error: {str(e)}")
         return jsonify({"error": f"Export failed: {str(e)}"}), 500
 
 @app.route("/")
@@ -710,4 +728,3 @@ def home():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
-app.py
