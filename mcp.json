@@ -1,0 +1,7 @@
+{
+  "name": "MEP Server Python",
+  "description": "Custom MCP server for Puch AI",
+  "type": "python",
+  "entry": "app.py",
+  "port": 5000
+}
